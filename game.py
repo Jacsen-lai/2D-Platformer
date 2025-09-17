@@ -18,6 +18,11 @@ class Game:
         self.movement = [False, False]
 
         self.assets = {
+            'decor' : load_images('tiles/decor')
+            'grass' : load_images('tiles/decor')
+            'decor' : load_images('tiles/decor')
+            'decor' : load_images('tiles/decor')
+            'decor' : load_images('tiles/decor')
             'player': load_image('entities/player.png')
         }
         
