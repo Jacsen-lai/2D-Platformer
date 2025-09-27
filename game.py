@@ -8,6 +8,8 @@ from scripts.utils import load_image, load_images
 
 from scripts.entities import PhysicsEntity
 
+from scripts.tilemap import Tilemap
+
 class Game:
     def __init__(self):
         pygame.init()
@@ -31,12 +33,16 @@ class Game:
 
         self.player = PhysicsEntity(self, 'player', (50, 50), (8, 15))
 
+        self.tilemap = Tilemap(self, tile_size=16)
+
         pygame.display.set_caption("NEA Jacsen Lai Teleporting Platformer")
 
     def run(self):
 
         while True:
             self.display.fill((14, 219, 248))
+
+            self.tilemap.render(self.display)
 
             self.player.update((self.movement[1] - self.movement[0], 0))
             self.player.render(self.display)
