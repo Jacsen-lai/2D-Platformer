@@ -48,7 +48,7 @@ class Game:
             self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
             self.player.render(self.display)
 
-            print(self.tilemap.physics_rects_around(self.player.pos))
+            print(self.tilemap.tiles_around(self.player.pos))
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
