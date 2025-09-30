@@ -31,9 +31,9 @@ class Game:
         
         print(self.assets)
 
-        self.player = PhysicsEntity(self, 'player', (50, 50), (8, 15))
+        self.player = PhysicsEntity(self, 'player', (100, 50), (8, 15))
 
-        self.tilemap = Tilemap(self, tile_size=16)
+        self.tilemap = Tilemap(self, tile_size=20)
 
         pygame.display.set_caption("NEA Jacsen Lai Teleporting Platformer")
 
@@ -67,5 +67,5 @@ class Game:
                 
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size())),   
             pygame.display.update()
-            self.clock.tick(60)     
+            self.clock.tick(5)     
 Game().run()   
