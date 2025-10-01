@@ -31,9 +31,9 @@ class Game:
         
         print(self.assets)
 
-        self.player = PhysicsEntity(self, 'player', (80, 50), (8, 15))
+        self.player = PhysicsEntity(self, 'player', (50, 50), (8, 15))
 
-        self.tilemap = Tilemap(self, tile_size=8)
+        self.tilemap = Tilemap(self, tile_size=16)
 
         pygame.display.set_caption("NEA Jacsen Lai Teleporting Platformer")
 
@@ -41,14 +41,14 @@ class Game:
     def run(self):
 
         while True:
-            self.display.fill((14, 219, 248))
+            self.display.fill((255, 255, 255))
 
             self.tilemap.render(self.display)
 
             self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
             self.player.render(self.display)
 
-            print(self.tilemap.tiles_around(self.player.pos))
+            print(self.tilemap.physics_rects_around(self.player.pos))
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
