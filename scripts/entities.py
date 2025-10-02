@@ -8,49 +8,56 @@ class PhysicsEntity:
         self.size = size              # (width, height)
         self.velocity = [0, 0]        # (x, y) velocity
         self.grounded = False         # track if entity is standing on ground
+        self.collisions ={'up': False, 'down': False, 'right': False, 'left': False}
 
     def rect(self):
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
     
     def update(self, tilemap, movement=(0, 0)):
+        self.collisions ={'up': False, 'down': False, 'right': False, 'left': False}
         # reset grounded state each frame
         self.grounded = False
 
-        # combine input movement and velocity
+        #combine input movement and velocity
         frame_movement = [movement[0] + self.velocity[0],
                           movement[1] + self.velocity[1]]
 
-        # --- Horizontal movement ---
+        #Horizontal movement
         self.pos[0] += frame_movement[0]
         entity_rect = self.rect()
         for rect in tilemap.physics_rects_around(self.pos):
             if entity_rect.colliderect(rect):
                 if frame_movement[0] > 0:   # moving right
                     entity_rect.right = rect.left
+                    self.collisions['right'] = True
                 elif frame_movement[0] < 0: # moving left
                     entity_rect.left = rect.right
+                    self.collisions['left'] = True
                 self.pos[0] = entity_rect.x
 
-        # --- Vertical movement ---
+        #Vertical movement
         self.pos[1] += frame_movement[1]
         entity_rect = self.rect()
         for rect in tilemap.physics_rects_around(self.pos):
             if entity_rect.colliderect(rect):
                 if frame_movement[1] > 0:  # falling down onto a tile
                     entity_rect.bottom = rect.top
+                    self.collisions['down'] = True
                     self.grounded = True
                     self.velocity[1] = 0
                 elif frame_movement[1] < 0:  # hitting head
                     entity_rect.top = rect.bottom
+                    self.collisions['up'] = True
                     self.velocity[1] = 0
                 # IMPORTANT: pos[1] is the rect.top (since pos = top-left)
                 self.pos[1] = entity_rect.top
 
-        # --- Gravity ---
+
+        #Gravity
         if not self.grounded:
             self.velocity[1] = min(5, self.velocity[1] + 0.1)
         else:
             self.velocity[1] = 0  # keep grounded, no sinking
 
-    def render(self, surf):
-        surf.blit(self.game.assets['player'], self.pos)
+    def render(self, surf, offset=(0, 0)):
+        surf.blit(self.game.assets['player'], (self.pos[0] - offset[0], self.pos[1] - offset[1]))
