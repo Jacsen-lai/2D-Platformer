@@ -31,7 +31,7 @@ class Game:
         }
         
         print(self.assets)
-
+       
         self.player = PhysicsEntity(self, 'player', (50, 50), (8, 15))
 
         self.tilemap = Tilemap(self, tile_size=16)
