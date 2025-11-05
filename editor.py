@@ -2,7 +2,8 @@ import sys
 
 import pygame
 
-from scripts.utils import load_images
+from scripts.utils import load_image, load_images
+from scripts.entities import PhysicsEntity
 from scripts.tilemap import Tilemap
 
 RENDER_SCALE = 2.0
@@ -39,7 +40,6 @@ class Editor:
         while True:
             self.display.fill((0, 0, 0))
 
-            print(self.tilemap.physics_rects_around(self.player.pos))
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
