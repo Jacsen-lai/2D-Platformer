@@ -4,60 +4,108 @@ class PhysicsEntity:
     def __init__(self, game, e_type, pos, size):
         self.game = game
         self.type = e_type
-        self.pos = list(pos)          # top-left position of the entity
-        self.size = size              # (width, height)
-        self.velocity = [0, 0]        # (x, y) velocity
-        self.grounded = False         # track if entity is standing on ground
-        self.collisions ={'up': False, 'down': False, 'right': False, 'left': False}
-
+        self.pos = list(pos)
+        self.size = size
+        self.velocity = [0, 0]
+        self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
+        
+        
+        self.last_movement = [0, 0]
+    
     def rect(self):
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
     
+        
     def update(self, tilemap, movement=(0, 0)):
-        self.collisions ={'up': False, 'down': False, 'right': False, 'left': False}
-        # reset grounded state each frame
-        self.grounded = False
-
-        #combine input movement and velocity
-        frame_movement = [movement[0] + self.velocity[0],
-                          movement[1] + self.velocity[1]]
-
-        #Horizontal movement
+        self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
+        
+        frame_movement = (movement[0] + self.velocity[0], movement[1] + self.velocity[1])
+        
         self.pos[0] += frame_movement[0]
         entity_rect = self.rect()
         for rect in tilemap.physics_rects_around(self.pos):
             if entity_rect.colliderect(rect):
-                if frame_movement[0] > 0:   # moving right
+                if frame_movement[0] > 0:
                     entity_rect.right = rect.left
                     self.collisions['right'] = True
-                elif frame_movement[0] < 0: # moving left
+                if frame_movement[0] < 0:
                     entity_rect.left = rect.right
                     self.collisions['left'] = True
                 self.pos[0] = entity_rect.x
-
-        #Vertical movement
+        
         self.pos[1] += frame_movement[1]
         entity_rect = self.rect()
         for rect in tilemap.physics_rects_around(self.pos):
             if entity_rect.colliderect(rect):
-                if frame_movement[1] > 0:  # falling down onto a tile
+                if frame_movement[1] > 0:
                     entity_rect.bottom = rect.top
                     self.collisions['down'] = True
-                    self.grounded = True
-                    self.velocity[1] = 0
-                elif frame_movement[1] < 0:  # hitting head
+                if frame_movement[1] < 0:
                     entity_rect.top = rect.bottom
                     self.collisions['up'] = True
-                    self.velocity[1] = 0
-                # IMPORTANT: pos[1] is the rect.top (since pos = top-left)
-                self.pos[1] = entity_rect.top
-
-
-        #Gravity
-        if not self.grounded:
-            self.velocity[1] = min(5, self.velocity[1] + 0.1)
-        else:
-            self.velocity[1] = 0  # 
+                self.pos[1] = entity_rect.y
+                
+        if movement[0] > 0:
+            self.flip = False
+        if movement[0] < 0:
+            self.flip = True
+            
+        self.last_movement = movement
+        
+        self.velocity[1] = min(5, self.velocity[1] + 0.1)
+        
+        if self.collisions['down'] or self.collisions['up']:
+            self.velocity[1] = 0
+        
     def render(self, surf, offset=(0, 0)):
         surf.blit(self.game.assets['player'], (self.pos[0] - offset[0], self.pos[1] - offset[1]))
 
+class Player(PhysicsEntity):
+    def __init__(self, game, pos, size):
+        super().__init__(game, 'player', pos, size)
+        self.air_time = 0
+        self.jumps = 1
+        self.wall_slide = False
+    
+    def update(self, tilemap, movement=(0, 0)):
+        super().update(tilemap, movement=movement)
+        
+        self.air_time += 1
+        if self.collisions['down']:
+            self.air_time = 0
+            self.jumps = 1
+            
+        self.wall_slide = False
+        if (self.collisions['right'] or self.collisions['left']) and self.air_time > 4:
+            self.wall_slide = True
+            self.velocity[1] = min(self.velocity[1], 0.5)
+            if self.collisions['right']:
+                self.flip = False
+            else:
+                self.flip = True
+                
+        if self.velocity[0] > 0:
+            self.velocity[0] = max(self.velocity[0] - 0.1, 0)
+        else:
+            self.velocity[0] = min(self.velocity[0] + 0.1, 0)
+            
+    def jump(self):
+        if self.wall_slide:
+            if self.flip and self.last_movement[0] < 0:
+                self.velocity[0] = 3.5
+                self.velocity[1] = -2.5
+                self.air_time = 5
+                self.jumps = max(0, self.jumps - 1)
+                return True
+            elif not self.flip and self.last_movement[0] > 0:
+                self.velocity[0] = -3.5
+                self.velocity[1] = -2.5
+                self.air_time = 5
+                self.jumps = max(0, self.jumps - 1)
+                return True
+                
+        elif self.jumps:
+            self.velocity[1] = -3
+            self.jumps -= 1
+            self.air_time = 5
+            return True
