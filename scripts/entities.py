@@ -71,6 +71,9 @@ class Player(PhysicsEntity):
         super().update(tilemap, movement=movement)
         
         self.air_time += 1
+
+        if self.air_time > 120:
+            self.game.dead += 1
         if self.collisions['down']:
             self.air_time = 0
             self.jumps = 1
@@ -83,6 +86,8 @@ class Player(PhysicsEntity):
                 self.flip = False
             else:
                 self.flip = True
+
+
                 
         if self.velocity[0] > 0:
             self.velocity[0] = max(self.velocity[0] - 0.1, 0)
