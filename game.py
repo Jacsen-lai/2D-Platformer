@@ -30,7 +30,7 @@ class Game:
             'background': load_image('background.png'),
         }
                 
-        self.player = Player(self, (100, 100), (8, 15))
+        self.player = Player(self, (0, 100), (8, 15))
         
         self.tilemap = Tilemap(self, tile_size=16)
 
@@ -58,7 +58,7 @@ class Game:
                 self.dead += 1
                 if self.dead > 40:
                     self.load_level(self.level)
-                    self.player = Player(self, (100, 100), (8, 15))
+                    self.player = Player(self, (0, 100), (8, 15))
             
             if not self.dead:
                 #self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
@@ -89,6 +89,9 @@ class Game:
                         self.movement[1] = True
                     if event.key == pygame.K_UP:
                         self.player.jump()
+                    if event.key == pygame.K_n:
+                        self.level = self.level + 1
+                        self.dead += 40
                     if event.key == pygame.K_SPACE and self.balls == []:
                         direction = -1 if getattr(self.player, "flip", False) else 1
                         ball_pos = self.player.rect().center
