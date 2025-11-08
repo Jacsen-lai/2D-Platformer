@@ -89,7 +89,7 @@ class Game:
                         self.movement[1] = True
                     if event.key == pygame.K_UP:
                         self.player.jump()
-                    if event.key == pygame.K_f:
+                    if event.key == pygame.K_SPACE and self.balls == []:
                         direction = -1 if getattr(self.player, "flip", False) else 1
                         ball_pos = self.player.rect().center
                         self.balls.append(Ball(self, ball_pos, direction))
@@ -104,6 +104,7 @@ class Game:
                         self.movement[0] = False
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = False
+
             
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()

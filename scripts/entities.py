@@ -72,7 +72,7 @@ class Player(PhysicsEntity):
         
         self.air_time += 1
 
-        if self.air_time > 120:
+        if self.air_time > 180:
             self.game.dead += 1
         if self.collisions['down']:
             self.air_time = 0

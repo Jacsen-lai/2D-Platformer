@@ -5,11 +5,11 @@ class Ball:
     def __init__(self, game, pos, direction):
         self.game = game
         self.pos = pygame.Vector2(pos)
-        self.radius = 4
+        self.radius = 3
         self.color = (255, 100, 100)
 
         # --- Motion setup ---
-        self.speed = 6
+        self.speed = 3
         self.direction = direction  # +1 right, -1 left
 
         # 45° throw angle (upward)
@@ -20,10 +20,10 @@ class Ball:
         )
 
         # Physics
-        self.gravity = 0.25
-        self.bounce_factor = 0.6  # how much energy it keeps after bouncing
+        self.gravity = 0.05
+        self.bounce_factor = 0.8  # how much energy it keeps after bouncing
         self.bounce_count = 0
-        self.max_bounces = 3
+        self.max_bounces = 5
         self.alive = True
 
     def update(self, tilemap):
