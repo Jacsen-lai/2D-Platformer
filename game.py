@@ -7,6 +7,7 @@ import pygame
 from scripts.utils import load_image, load_images
 from scripts.entities import PhysicsEntity, Player
 from scripts.tilemap import Tilemap
+from scripts.ball import Ball
 
 class Game:
     def __init__(self):
@@ -32,10 +33,13 @@ class Game:
         self.player = Player(self, (100, 100), (8, 15))
         
         self.tilemap = Tilemap(self, tile_size=16)
-        self.load_level(0)
+
+        self.level = 0
+        self.load_level(self.level)
         
         
         self.scroll = [0, 0]
+        self.balls = []
 
 
     def load_level(self, map_id):
@@ -44,6 +48,7 @@ class Game:
         self.player.air_time = 0
         self.scroll = [0, 0]
         self.dead = 0
+        self.transition = -30
         
     def run(self):
         while True:
@@ -52,7 +57,7 @@ class Game:
             if self.dead:
                 self.dead += 1
                 if self.dead > 40:
-                    self.load_level(0)
+                    self.load_level(self.level)
                     self.player = Player(self, (100, 100), (8, 15))
             
             if not self.dead:
@@ -64,6 +69,14 @@ class Game:
                 
                 self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
                 self.player.render(self.display, offset=render_scroll)
+
+            for ball in self.balls:
+                ball.update(self.tilemap)
+
+            self.balls = [b for b in self.balls if b.alive]
+
+            for ball in self.balls:
+                ball.draw(self.display, offset=render_scroll)
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -76,6 +89,16 @@ class Game:
                         self.movement[1] = True
                     if event.key == pygame.K_UP:
                         self.player.jump()
+                    if event.key == pygame.K_f:
+                        direction = -1 if getattr(self.player, "flip", False) else 1
+                        ball_pos = self.player.rect().center
+                        self.balls.append(Ball(self, ball_pos, direction))
+                    if event.key == pygame.K_e:
+                        if self.balls:
+                            last_ball = self.balls[-1]
+                            self.player.pos[0] = last_ball.pos.x - self.player.size[0] / 2
+                            self.player.pos[1] = last_ball.pos.y - self.player.size[1] / 2
+                            self.balls.remove(last_ball)
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         self.movement[0] = False
@@ -84,6 +107,6 @@ class Game:
             
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
-            self.clock.tick(60)
+            self.clock.tick(90)
 
 Game().run()
