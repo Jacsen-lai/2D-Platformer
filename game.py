@@ -8,13 +8,14 @@ from scripts.utils import load_image, load_images
 from scripts.entities import PhysicsEntity, Player
 from scripts.tilemap import Tilemap
 from scripts.ball import Ball
+from scripts.portal import Portal
 
 class Game:
     def __init__(self):
         pygame.init()
 
-        pygame.display.set_caption('ninja game')
-        self.screen = pygame.display.set_mode((640, 480))
+        pygame.display.set_caption("Jacsen's Platformer")
+        self.screen = pygame.display.set_mode((960, 720))
         self.display = pygame.Surface((320, 240))
 
         self.clock = pygame.time.Clock()
@@ -39,6 +40,7 @@ class Game:
         
         
         self.scroll = [0, 0]
+        self.portals = []
         self.balls = []
 
 
@@ -49,6 +51,12 @@ class Game:
         self.scroll = [0, 0]
         self.dead = 0
         self.transition = -30
+        self.portals = []
+
+        if map_id == 0:
+            self.portals.append(Portal(self, (100, 100), target_level = 1))
+        elif map_id == 1:
+            self.portals.append(Portal(self, (100, 100), target_level = 2))
         
     def run(self):
         while True:
@@ -77,6 +85,11 @@ class Game:
 
             for ball in self.balls:
                 ball.draw(self.display, offset=render_scroll)
+
+            for portal in self.portals:
+                portal.update()
+            for portal in self.portals:
+                portal.draw(self.display, offset = render_scroll)    
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
