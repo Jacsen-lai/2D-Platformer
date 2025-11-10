@@ -54,7 +54,7 @@ class Game:
         self.portals = []
 
         portal_positions = {
-            0: (250, 70),
+            0: (20, 18),
             1: (300, 130),
             2: (250, 70)
         }
