@@ -36,12 +36,12 @@ class Game:
         self.tilemap = Tilemap(self, tile_size=16)
 
         self.level = 0
-        self.load_level(self.level)
         
         
         self.scroll = [0, 0]
         self.portals = []
         self.balls = []
+        self.load_level(self.level)
 
 
     def load_level(self, map_id):
@@ -53,10 +53,15 @@ class Game:
         self.transition = -30
         self.portals = []
 
-        if map_id == 0:
-            self.portals.append(Portal(self, (100, 100), target_level = 1))
-        elif map_id == 1:
-            self.portals.append(Portal(self, (100, 100), target_level = 2))
+        portal_positions = {
+            0: (250, 70),
+            1: (300, 130),
+            2: (250, 70)
+        }
+        next_level = map_id + 1
+        if map_id in portal_positions and next_level < 10:
+            self.portals.append(Portal(self, portal_positions[map_id], target_level=next_level))
+
         
     def run(self):
         while True:
@@ -69,8 +74,8 @@ class Game:
                     self.player = Player(self, (0, 100), (8, 15))
             
             if not self.dead:
-                #self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
-                #self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
+                self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
+                self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
                 render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
                 
                 self.tilemap.render(self.display, offset=render_scroll)
