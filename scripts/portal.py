@@ -24,7 +24,7 @@ class Portal:
             if self.target_level is not None:
                 self.game.level = self.target_level
                 self.game.load_level(self.target_level)
-                self.game.player = self.game.player.__class__(self.game, (100, 100), (8, 15))
+                self.game.player = self.game.player.__class__(self.game, (0, 100), (8, 15))
 
     def draw(self, surf, offset=(0, 0)):
         x = self.rect.x - offset[0]
