@@ -36,6 +36,9 @@ class Game:
         self.tilemap = Tilemap(self, tile_size=16)
 
         self.level = 0
+        self.max_balls = 5
+        self.ballcount = 5
+        self.font = pygame.font.SysFont("Arial", 14)
         
         
         self.scroll = [0, 0]
@@ -52,6 +55,7 @@ class Game:
         self.dead = 0
         self.transition = -30
         self.portals = []
+        self.ball_count = self.max_balls
 
         portal_positions = {
             0: (20, 18),
@@ -74,8 +78,8 @@ class Game:
                     self.player = Player(self, (0, 100), (8, 15))
             
             if not self.dead:
-                self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
-                self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
+                #self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
+                #self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
                 render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
                 
                 self.tilemap.render(self.display, offset=render_scroll)
@@ -104,29 +108,30 @@ class Game:
                     if event.key == pygame.K_LEFT:
                         self.movement[0] = True
                     if event.key == pygame.K_RIGHT:
-                        self.movement[1] = True
+                        self.movement[1] = True  
                     if event.key == pygame.K_UP:
                         self.player.jump()
                     if event.key == pygame.K_n:
                         self.level = self.level + 1
                         self.dead += 40
-                    if event.key == pygame.K_SPACE and self.balls == []:
+                    if event.key == pygame.K_SPACE and self.balls == [] and self.ball_count > 0:
                         direction = -1 if getattr(self.player, "flip", False) else 1
                         ball_pos = self.player.rect().center
                         self.balls.append(Ball(self, ball_pos, direction))
+
+                        self.ball_count -= 1
                     if event.key == pygame.K_e:
                         if self.balls:
                             last_ball = self.balls[-1]
-                            self.player.pos[0] = last_ball.pos.x - self.player.size[0] / 2
-                            self.player.pos[1] = last_ball.pos.y - self.player.size[1] / 2
-                            self.balls.remove(last_ball)
+                            self.player.start_teleport(last_ball)
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         self.movement[0] = False
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = False
 
-            
+            ammo_text = self.font.render(f"Balls: {self.ball_count}/{self.max_balls}", True, (255, 255, 255))
+            self.display.blit(ammo_text, (5, 5))
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
             self.clock.tick(90)

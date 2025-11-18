@@ -52,36 +52,80 @@ class PhysicsEntity:
             
         self.last_movement = movement
         
-        self.velocity[1] = min(5, self.velocity[1] + 0.1)
+        self.velocity[1] = min(3, self.velocity[1] + 0.1)
         
         if self.collisions['down'] or self.collisions['up']:
             self.velocity[1] = 0
         
     def render(self, surf, offset=(0, 0)):
-        surf.blit(self.game.assets['player'], (self.pos[0] - offset[0], self.pos[1] - offset[1]))
+        if hasattr(self, "teleporting") and self.teleporting:
+            return
+        
+
+        img = self.game.assets['player']
+        if hasattr(self, "flip") and self.flip:
+            img = pygame.transform.flip(img, True, False)
+
+        surf.blit(img, (self.pos[0] - offset[0], self.pos[1] - offset[1]))
 
 class Player(PhysicsEntity):
     def __init__(self, game, pos, size):
         super().__init__(game, 'player', pos, size)
         self.air_time = 0
-        self.jumps = 1
+        self.jumps = 0
         self.wall_slide = False
+        self.coyote_time_max = 20
+        self.coyote_timer = 0
+        self.wall_jump_cooldown = 0
+        self.teleporting = False
+        self.teleport_timer = 0
     
     def update(self, tilemap, movement=(0, 0)):
         super().update(tilemap, movement=movement)
-        
+
+        if self.teleporting:
+            self.teleport_timer -= 1
+            self.velocity = [0, 0]  # freeze player
+
+            if self.target_ball:
+                self.target_ball.vel.x = 0
+                self.target_ball.vel.y = 0
+
+
+            if self.teleport_timer <= 0:
+                # Teleport now
+                self.teleporting = False
+
+                # Move to the stored ball
+                self.pos[0] = self.target_ball.pos.x - self.size[0] / 2
+                self.pos[1] = self.target_ball.pos.y - self.size[1] / 2
+
+                self.air_time = 5
+
+                if self.target_ball in self.game.balls:
+                    self.game.balls.remove(self.target_ball)
+            return
+
+            
         self.air_time += 1
 
         if self.air_time > 180:
             self.game.dead += 1
         if self.collisions['down']:
             self.air_time = 0
-            self.jumps = 1
+            self.jumps = 0
+            self.coyote_timer = self.coyote_time_max
+        else:
+            if self.coyote_timer > 0:
+                self.coyote_timer -= 1
             
         self.wall_slide = False
         if (self.collisions['right'] or self.collisions['left']) and self.air_time > 4:
             self.wall_slide = True
             self.velocity[1] = min(self.velocity[1], 0.5)
+
+        if self.wall_jump_cooldown > 0:
+            self.wall_jump_cooldown -= 1
             if self.collisions['right']:
                 self.flip = False
             else:
@@ -93,25 +137,38 @@ class Player(PhysicsEntity):
             self.velocity[0] = max(self.velocity[0] - 0.1, 0)
         else:
             self.velocity[0] = min(self.velocity[0] + 0.1, 0)
-            
+
+    def start_teleport(self, ball):
+        if not self.teleporting:
+            self.teleporting = True
+            self.teleport_timer = 15
+            self.target_ball = ball
+
+
     def jump(self):
-        if self.wall_slide:
+        if self.wall_slide and self.wall_jump_cooldown == 0:
             if self.flip and self.last_movement[0] < 0:
                 self.velocity[0] = 3.5
                 self.velocity[1] = -2.5
                 self.air_time = 5
-                self.jumps = max(0, self.jumps - 1)
+                self.jumps = max(self.jumps -1, 0)
+                self.wall_jump_cooldown = 1
                 return True
             elif not self.flip and self.last_movement[0] > 0:
                 self.velocity[0] = -3.5
                 self.velocity[1] = -2.5
                 self.air_time = 5
-                self.jumps = max(0, self.jumps - 1)
+                self.jumps = max(self.jumps -1, 0)
+                self.wall_jump_cooldown = 1
                 return True
-                
-        elif self.jumps:
+
+        if self.jumps or self.coyote_timer > 0:
             self.velocity[1] = -3
-            self.jumps -= 1
             self.air_time = 5
+
+            if self.coyote_timer <= 0:
+                self.jumps -= 1     #use a jump if not using coyote
+            else:
+                pass    #coyote doesnt consume a jump
             return True
 
