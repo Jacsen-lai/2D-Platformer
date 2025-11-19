@@ -60,7 +60,7 @@ class Game:
         portal_positions = {
             0: (20, 18),
             1: (300, 130),
-            2: (250, 70)
+            2: (250, 20)
         }
         next_level = map_id + 1
         if map_id in portal_positions and next_level < 10:
@@ -111,6 +111,9 @@ class Game:
                         self.movement[1] = True  
                     if event.key == pygame.K_UP:
                         self.player.jump()
+                    if event.key == pygame.K_r:
+                        self.load_level(self.level)
+                        self.player = Player(self, (0, 100), (8, 15))
                     if event.key == pygame.K_n:
                         self.level = self.level + 1
                         self.dead += 40
