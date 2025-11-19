@@ -38,7 +38,7 @@ class Game:
         self.level = 0
         self.max_balls = 5
         self.ballcount = 5
-        self.font = pygame.font.SysFont("Arial", 14)
+        self.font = pygame.font.SysFont("Impact", 14)
         
         
         self.scroll = [0, 0]
@@ -59,8 +59,9 @@ class Game:
 
         portal_positions = {
             0: (20, 18),
-            1: (300, 130),
-            2: (250, 20)
+            1: (500, 20),
+            2: (300, 130),
+            3: (250, 20)
         }
         next_level = map_id + 1
         if map_id in portal_positions and next_level < 10:
@@ -78,8 +79,8 @@ class Game:
                     self.player = Player(self, (0, 100), (8, 15))
             
             if not self.dead:
-                #self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
-                #self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
+                self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
+                self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
                 render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
                 
                 self.tilemap.render(self.display, offset=render_scroll)

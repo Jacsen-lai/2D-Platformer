@@ -23,7 +23,7 @@ class Ball:
         self.gravity = 0.05
         self.bounce_factor = 0.8  # how much energy it keeps after bouncing
         self.bounce_count = 0
-        self.max_bounces = 5
+        self.max_bounces = 10
         self.alive = True
 
     def update(self, tilemap):
