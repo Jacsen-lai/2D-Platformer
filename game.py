@@ -73,6 +73,24 @@ class Game:
         if next_level == 6:
             self.timer_running = False
 
+
+    def full_reset(self):
+        self.level = 0
+        self.load_level(self.level)
+
+        self.player = Player(self, (0, 100), (8, 15))
+
+        self.balls = []
+        self.ball_count = self.max_balls
+
+        self.start_time = pygame.time.get_ticks()
+        self.timer_running = True
+
+        self.scroll = [0, 0]
+
+        self.dead = 0
+        self.transition = -30
+
         
     def run(self):
         while True:
@@ -121,6 +139,8 @@ class Game:
                     if event.key == pygame.K_r:
                         self.load_level(self.level)
                         self.player = Player(self, (0, 100), (8, 15))
+                    if event.key == pygame.K_ESCAPE:
+                        self.full_reset()
                     if event.key == pygame.K_n:
                         self.level = self.level + 1
                         self.dead += 40

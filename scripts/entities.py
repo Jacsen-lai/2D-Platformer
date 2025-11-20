@@ -96,9 +96,14 @@ class Player(PhysicsEntity):
                 # Teleport now
                 self.teleporting = False
 
-                # Move to the stored ball
-                self.pos[0] = self.target_ball.pos.x - self.size[0] / 2
-                self.pos[1] = self.target_ball.pos.y - self.size[1] / 2
+                desired = (
+                    self.target_ball.pos.x - self.size[0] / 2,
+                    self.target_ball.pos.y - self.size[1] / 2
+                )
+
+                safe_pos = self.find_safe_position(desired, tilemap)
+
+                self.pos[0], self.pos[1] = safe_pos
 
                 self.air_time = 5
 
@@ -177,7 +182,7 @@ class Player(PhysicsEntity):
 
         #if the position is safe, then it can be returned. 
         for rect in tilemap.physics_rects_around(desired_pos):
-            if test_rect.colliderrect(rect):
+            if test_rect.colliderect(rect):
                 break
         else:
             return desired_pos 
