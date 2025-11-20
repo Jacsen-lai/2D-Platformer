@@ -41,6 +41,7 @@ class Game:
         self.max_balls = 5
         self.ballcount = 5
         self.font = pygame.font.SysFont("Impact", 14)
+        self.big_font = pygame.font.SysFont("Impact", 32,)
         
         
         self.scroll = [0, 0]
@@ -63,12 +64,13 @@ class Game:
             0: (20, 18),
             1: (500, 20),
             2: (300, 130),
-            3: (250, 20)
+            3: (250, 20),
+            4: (170, 30),
         }
         next_level = map_id + 1
         if map_id in portal_positions and next_level < 10:
             self.portals.append(Portal(self, portal_positions[map_id], target_level=next_level))
-        if next_level == 5:
+        if next_level == 6:
             self.timer_running = False
 
         
@@ -140,16 +142,22 @@ class Game:
 
             ammo_text = self.font.render(f"Balls: {self.ball_count}/{self.max_balls}", True, (255, 255, 255))
             self.display.blit(ammo_text, (5, 5))
-            # ----- TIMER -----
+            #Timer
             if self.timer_running:
                 self.elapsed_ms = pygame.time.get_ticks() - self.start_time
+                font_used = self.font
+                color = (255, 255, 255)
+            else:
+                font_used = self.big_font
+                color = (0, 255, 0)
+
 
             elapsed_seconds = self.elapsed_ms // 1000
 
             minutes = elapsed_seconds // 60
             seconds = elapsed_seconds % 60
 
-            timer_text = self.font.render(f"Time: {minutes:02d}:{seconds:02d}", True, (255, 255, 255))
+            timer_text = font_used.render(f"Time: {minutes:02d}:{seconds:02d}", True, color)
             self.display.blit(timer_text, (5, 20))
 
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
