@@ -20,6 +20,7 @@ class Game:
 
         self.clock = pygame.time.Clock()
         self.start_time = pygame.time.get_ticks()
+        self.timer_running = True
         
         self.movement = [False, False]
         
@@ -67,6 +68,8 @@ class Game:
         next_level = map_id + 1
         if map_id in portal_positions and next_level < 10:
             self.portals.append(Portal(self, portal_positions[map_id], target_level=next_level))
+        if next_level == 5:
+            self.timer_running = False
 
         
     def run(self):
@@ -138,8 +141,10 @@ class Game:
             ammo_text = self.font.render(f"Balls: {self.ball_count}/{self.max_balls}", True, (255, 255, 255))
             self.display.blit(ammo_text, (5, 5))
             # ----- TIMER -----
-            elapsed_milliseconds = pygame.time.get_ticks() - self.start_time
-            elapsed_seconds = elapsed_milliseconds // 1000
+            if self.timer_running:
+                self.elapsed_ms = pygame.time.get_ticks() - self.start_time
+
+            elapsed_seconds = self.elapsed_ms // 1000
 
             minutes = elapsed_seconds // 60
             seconds = elapsed_seconds % 60
