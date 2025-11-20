@@ -1,6 +1,8 @@
 import sys
 import math
 import random
+import json
+import os
 
 import pygame
 
@@ -23,6 +25,7 @@ class Game:
         self.timer_running = True
         
         self.movement = [False, False]
+        self.leaderboard_path = "data/leaderboard.json"
         
         self.assets = {
             'decor': load_images('tiles/decor'),
@@ -36,6 +39,19 @@ class Game:
         self.player = Player(self, (0, 100), (8, 15))
         
         self.tilemap = Tilemap(self, tile_size=16)
+
+        # Leaderboard load
+        if os.path.exists(self.leaderboard_path):
+            with open(self.leaderboard_path, "r") as f:
+                try:
+                    self.leaderboard = json.load(f)
+                except:
+                    self.leaderboard = {"best_time_ms": None}
+        else:
+            self.leaderboard = {"best_time_ms": None}
+            with open(self.leaderboard_path, "w") as f:
+                json.dump(self.leaderboard, f)
+
 
         self.level = 0
         self.max_balls = 5
@@ -96,6 +112,22 @@ class Game:
         while True:
             self.display.blit(self.assets['background'], (0, 0))
 
+            best = self.leaderboard.get("best_time_ms", None)
+
+            if best is not None:
+                best_sec = best // 1000
+                best_min = best_sec // 60
+                best_s = best_sec % 60
+                best_ms = best % 1000
+
+                best_text = self.font.render(
+                    f"Best: {best_min:02d}:{best_s:02d}.{best_ms:03d}",
+                    True, (200, 255, 200)
+                )
+
+                self.display.blit(best_text, (5, 40))
+
+
             if self.dead:
                 self.dead += 1
                 if self.dead > 40:
@@ -140,6 +172,9 @@ class Game:
                         self.load_level(self.level)
                         self.player = Player(self, (0, 100), (8, 15))
                     if event.key == pygame.K_ESCAPE:
+                        if not self.timer_running:
+                            with open(self.leaderboard_path, "w") as f:
+                                json.dump(self.leaderboard, f)
                         self.full_reset()
                     if event.key == pygame.K_n:
                         self.level = self.level + 1
@@ -170,6 +205,13 @@ class Game:
             else:
                 font_used = self.big_font
                 color = (0, 255, 0)
+            
+
+            if self.leaderboard["best_time_ms"] is None or self.elapsed_ms < self.leaderboard["best_time_ms"]:
+                self.leaderboard["best_time_ms"] = self.elapsed_ms
+
+                with open(self.leaderboard_path, "w") as f:
+                    json.dump(self.leaderboard, f)
 
 
             elapsed_seconds = self.elapsed_ms // 1000
