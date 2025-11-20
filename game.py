@@ -156,8 +156,9 @@ class Game:
 
             minutes = elapsed_seconds // 60
             seconds = elapsed_seconds % 60
+            ms = self.elapsed_ms % 1000
 
-            timer_text = font_used.render(f"Time: {minutes:02d}:{seconds:02d}", True, color)
+            timer_text = font_used.render(f"Time: {minutes:02d}:{seconds:02d}:{ms}", True, color)
             self.display.blit(timer_text, (5, 20))
 
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
@@ -165,3 +166,4 @@ class Game:
             self.clock.tick(90)
 
 Game().run()
+

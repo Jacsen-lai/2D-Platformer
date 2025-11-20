@@ -171,4 +171,36 @@ class Player(PhysicsEntity):
             else:
                 pass    #coyote doesnt consume a jump
             return True
+        
+    def find_safe_position(self, desired_pos, tilemap):
+        test_rect = pygame.Rect(desired_pos[0], desired_pos[1], self.size[0], self.size[1])
 
+        #if the position is safe, then it can be returned. 
+        for rect in tilemap.physics_rects_around(desired_pos):
+            if test_rect.colliderrect(rect):
+                break
+        else:
+            return desired_pos 
+        
+
+        OFFSETS = [
+            (0, 0),
+            (0, -4), (0, 4),
+            (4, 0), (-4, 0),
+            (4, -4), (4, 4),
+            (-4, -4), (-4, 4),
+        ]
+
+        for dx, dy in OFFSETS:
+            new_pos = (desired_pos[0] + dx, desired_pos[1] + dy)
+            test_rect.x, test_rect.y = new_pos
+
+            collision = False
+            for rect in tilemap.physics_rects_around(new_pos):
+                if test_rect.colliderect(rect):
+                    collision = True
+                    break
+            if not collision:
+                return new_pos 
+            
+        return desired_pos
