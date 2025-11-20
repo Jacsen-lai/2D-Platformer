@@ -39,30 +39,33 @@ class Ball:
             self.radius * 2
         )
 
-        # Check for collisions with nearby tiles
+            # Check collisions
         for rect in tilemap.physics_rects_around((self.pos.x, self.pos.y)):
             if ball_rect.colliderect(rect):
-                # Horizontal bounce
-                if abs(rect.left - ball_rect.right) < 6 and self.vel.x > 0:
-                    self.pos.x = rect.left - self.radius
-                    self.vel.x *= -self.bounce_factor
-                    self.bounce_count += 1
-                elif abs(rect.right - ball_rect.left) < 6 and self.vel.x < 0:
-                    self.pos.x = rect.right + self.radius
-                    self.vel.x *= -self.bounce_factor
-                    self.bounce_count += 1
+                # Compute overlap distances
+                overlap_left   = ball_rect.right - rect.left
+                overlap_right  = rect.right - ball_rect.left
+                overlap_top    = ball_rect.bottom - rect.top
+                overlap_bottom = rect.bottom - ball_rect.top
 
-                # Vertical bounce
-                if abs(rect.top - ball_rect.bottom) < 6 and self.vel.y > 0:
-                    self.pos.y = rect.top - self.radius
-                    self.vel.y *= -self.bounce_factor
-                    self.bounce_count += 1
-                elif abs(rect.bottom - ball_rect.top) < 6 and self.vel.y < 0:
-                    self.pos.y = rect.bottom + self.radius
-                    self.vel.y *= -self.bounce_factor
-                    self.bounce_count += 1
+                # Find smallest overlap → correct collision axis
+                min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
 
-                # limit bounces
+                if min_overlap == overlap_left and self.vel.x > 0:
+                    self.pos.x -= overlap_left
+                    self.vel.x *= -self.bounce_factor
+                elif min_overlap == overlap_right and self.vel.x < 0:
+                    self.pos.x += overlap_right
+                    self.vel.x *= -self.bounce_factor
+                elif min_overlap == overlap_top and self.vel.y > 0:
+                    self.pos.y -= overlap_top
+                    self.vel.y *= -self.bounce_factor
+                elif min_overlap == overlap_bottom and self.vel.y < 0:
+                    self.pos.y += overlap_bottom
+                    self.vel.y *= -self.bounce_factor
+
+                # Count bounces
+                self.bounce_count += 1
                 if self.bounce_count >= self.max_bounces:
                     self.alive = False
                     break
