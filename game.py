@@ -14,6 +14,9 @@ from scripts.portal import Portal
 
 class Game:
     def __init__(self):
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        self.leaderboard_path = os.path.join(base_dir, "data", "leaderboard.json")
+
         pygame.init()
 
         pygame.display.set_caption("Jacsen's Platformer")
@@ -40,17 +43,15 @@ class Game:
         
         self.tilemap = Tilemap(self, tile_size=16)
 
-        # Leaderboard load
+       # Load leaderboard
+        self.leaderboard_path = "data/leaderboard.json"
+
         if os.path.exists(self.leaderboard_path):
             with open(self.leaderboard_path, "r") as f:
-                try:
-                    self.leaderboard = json.load(f)
-                except:
-                    self.leaderboard = {"best_time_ms": None}
+                self.leaderboard = json.load(f)
         else:
             self.leaderboard = {"best_time_ms": None}
-            with open(self.leaderboard_path, "w") as f:
-                json.dump(self.leaderboard, f)
+
 
 
         self.level = 0
@@ -86,8 +87,6 @@ class Game:
         next_level = map_id + 1
         if map_id in portal_positions and next_level < 10:
             self.portals.append(Portal(self, portal_positions[map_id], target_level=next_level))
-        if next_level == 6:
-            self.timer_running = False
 
 
     def full_reset(self):
@@ -125,7 +124,6 @@ class Game:
                     True, (200, 255, 200)
                 )
 
-                self.display.blit(best_text, (5, 40))
 
 
             if self.dead:
@@ -172,9 +170,8 @@ class Game:
                         self.load_level(self.level)
                         self.player = Player(self, (0, 100), (8, 15))
                     if event.key == pygame.K_ESCAPE:
-                        if not self.timer_running:
-                            with open(self.leaderboard_path, "w") as f:
-                                json.dump(self.leaderboard, f)
+                        with open(self.leaderboard_path, "w") as f:
+                            json.dump(self.leaderboard, f)
                         self.full_reset()
                     if event.key == pygame.K_n:
                         self.level = self.level + 1
@@ -196,7 +193,8 @@ class Game:
                         self.movement[1] = False
 
             ammo_text = self.font.render(f"Balls: {self.ball_count}/{self.max_balls}", True, (255, 255, 255))
-            self.display.blit(ammo_text, (5, 5))
+            self.display.blit(ammo_text, (5, 0))
+            self.display.blit(best_text, (230, 0))
             #Timer
             if self.timer_running:
                 self.elapsed_ms = pygame.time.get_ticks() - self.start_time
@@ -206,13 +204,6 @@ class Game:
                 font_used = self.big_font
                 color = (0, 255, 0)
             
-
-            if self.leaderboard["best_time_ms"] is None or self.elapsed_ms < self.leaderboard["best_time_ms"]:
-                self.leaderboard["best_time_ms"] = self.elapsed_ms
-
-                with open(self.leaderboard_path, "w") as f:
-                    json.dump(self.leaderboard, f)
-
 
             elapsed_seconds = self.elapsed_ms // 1000
 
@@ -226,6 +217,28 @@ class Game:
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
             self.clock.tick(90)
+
+
+    def finish_run(self):
+        self.timer_running = False
+
+        # Stop timer
+        final_time = pygame.time.get_ticks() - self.start_time
+        
+
+        # Update leaderboard
+        if self.leaderboard["best_time_ms"] is None or final_time < self.leaderboard["best_time_ms"]:
+            self.leaderboard["best_time_ms"] = final_time
+
+            with open(self.leaderboard_path, "w") as f:
+                json.dump(self.leaderboard, f)
+
+        print("RUN FINISHED! FINAL TIME SAVED:", final_time)
+        self.load_level(self.level + 1)
+
+    
+
+    
 
 Game().run()
 

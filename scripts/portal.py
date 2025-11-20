@@ -17,14 +17,21 @@ class Portal:
 
     def update(self):
         self.rect.topleft = (self.pos[0], self.pos[1])
-
-        # Check for player entering
         player_rect = self.game.player.rect()
+
         if player_rect.colliderect(self.rect):
+
+            # If this portal leads to level 5, stop timer now and DO NOT load new level
+            if self.target_level == 5:
+                self.game.finish_run()
+                return  # VERY important!!
+
+            # Otherwise continue normally
             if self.target_level is not None:
                 self.game.level = self.target_level
                 self.game.load_level(self.target_level)
                 self.game.player = self.game.player.__class__(self.game, (0, 100), (8, 15))
+
 
     def draw(self, surf, offset=(0, 0)):
         x = self.rect.x - offset[0]
