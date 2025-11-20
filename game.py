@@ -19,6 +19,7 @@ class Game:
         self.display = pygame.Surface((320, 240))
 
         self.clock = pygame.time.Clock()
+        self.start_time = pygame.time.get_ticks()
         
         self.movement = [False, False]
         
@@ -136,6 +137,16 @@ class Game:
 
             ammo_text = self.font.render(f"Balls: {self.ball_count}/{self.max_balls}", True, (255, 255, 255))
             self.display.blit(ammo_text, (5, 5))
+            # ----- TIMER -----
+            elapsed_milliseconds = pygame.time.get_ticks() - self.start_time
+            elapsed_seconds = elapsed_milliseconds // 1000
+
+            minutes = elapsed_seconds // 60
+            seconds = elapsed_seconds % 60
+
+            timer_text = self.font.render(f"Time: {minutes:02d}:{seconds:02d}", True, (255, 255, 255))
+            self.display.blit(timer_text, (5, 20))
+
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
             self.clock.tick(90)
