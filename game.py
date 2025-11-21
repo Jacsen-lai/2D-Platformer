@@ -83,6 +83,7 @@ class Game:
             2: (300, 130),
             3: (250, 20),
             4: (170, 30),
+            5: (493, 60),
         }
         next_level = map_id + 1
         if map_id in portal_positions and next_level < 10:

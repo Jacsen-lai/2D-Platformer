@@ -22,7 +22,7 @@ class Portal:
         if player_rect.colliderect(self.rect):
 
             # If this portal leads to level 5, stop timer now and DO NOT load new level
-            if self.target_level == 5:
+            if self.target_level == 6:
                 self.game.finish_run()
                 return  # VERY important!!
 
