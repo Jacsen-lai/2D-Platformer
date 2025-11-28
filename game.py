@@ -57,7 +57,8 @@ class Game:
         self.level = 0
         self.max_balls = 5
         self.ballcount = 5
-        self.font = pygame.font.SysFont("Impact", 14)
+        self.font = pygame.font.SysFont("Impact", 16)
+        self.medium_font = pygame.font.SysFont("Comic Sans", 12)
         self.big_font = pygame.font.SysFont("Impact", 32,)
         
         
@@ -194,13 +195,19 @@ class Game:
                         self.movement[1] = False
 
             ammo_text = self.font.render(f"Balls: {self.ball_count}/{self.max_balls}", True, (255, 255, 255))
+            throw_text = self.medium_font.render("Space = throw", True, (255, 255, 255))
+            reset_text = self.medium_font.render("R = Reset", True, (255, 255, 255))
+            teleport_text = self.medium_font.render("E = teleport", True, (255, 255, 255))
+            self.display.blit(throw_text, (230, 20))
+            self.display.blit(reset_text, (230, 35))
+            self.display.blit(teleport_text, (230, 50))
             self.display.blit(ammo_text, (5, 0))
             self.display.blit(best_text, (230, 0))
             #Timer
             if self.timer_running:
                 self.elapsed_ms = pygame.time.get_ticks() - self.start_time
                 font_used = self.font
-                color = (255, 255, 255)
+                color = (255, 0, 0)
             else:
                 font_used = self.big_font
                 color = (0, 255, 0)
@@ -234,10 +241,8 @@ class Game:
             with open(self.leaderboard_path, "w") as f:
                 json.dump(self.leaderboard, f)
 
-        print("RUN FINISHED! FINAL TIME SAVED:", final_time)
+        print("Final Time:", final_time)
         self.load_level(self.level + 1)
-
-    
 
     
 
