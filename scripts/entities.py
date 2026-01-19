@@ -74,7 +74,7 @@ class Player(PhysicsEntity):
         self.air_time = 0
         self.jumps = 0
         self.wall_slide = False
-        self.coyote_time_max = 20
+        self.coyote_time_max = 15
         self.coyote_timer = 0
         self.wall_jump_cooldown = 0
         self.teleporting = False
