@@ -83,7 +83,7 @@ class Game:
             1: (500, 20),
             2: (300, 130),
             3: (250, 20),
-            4: (170, 30),
+            4: (167, 30),
             5: (493, 60),
         }
         next_level = map_id + 1
@@ -202,7 +202,7 @@ class Game:
             self.display.blit(reset_text, (230, 35))
             self.display.blit(teleport_text, (230, 50))
             self.display.blit(ammo_text, (5, 0))
-            self.display.blit(best_text, (230, 0))
+            self.display.blit(best_text, (220, 0))
             #Timer
             if self.timer_running:
                 self.elapsed_ms = pygame.time.get_ticks() - self.start_time
